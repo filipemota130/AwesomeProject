@@ -6,21 +6,19 @@
  * @flow strict-local
  */
 
-import React, {useEffect} from 'react';
+import React from 'react';
 import {
   SafeAreaView,
-  ScrollView,
   StatusBar,
   StyleSheet,
   Text,
   View,
   TextInput,
-  SectionList,
+  Button,
+  FlatList,
 } from 'react-native';
-import axios from 'axios';
-//import api from './src/services/api';
 
-//import {Colors} from 'react-native/Libraries/NewAppScreen';
+import axios from 'axios';
 
 const Section = ({children, title, type}) => {
   return (
@@ -31,27 +29,24 @@ const Section = ({children, title, type}) => {
   );
 };
 
-const Item = ({ title }) => (
+const Item = ({title}) => (
   <View style={styles.item}>
-    <Text style={styles.title}>{title}</Text>
+    <Button style={styles.title} title={title} />
   </View>
 );
 
 const App = () => {
-  const [user, setUser] = React.useState('/filipemota130');
+  const [user, setUser] = React.useState('filipemota130');
   const [repos, setRepos] = React.useState([]);
 
-  //atulizar Lista
-  useEffect(() => {
-    function getURL() {
-      return `https://api.github.com/users${user}/repos`;
-    }
-    async function fetchData() {
-      const result = await axios(getURL());
-      setRepos(result.data);
-    }
-    fetchData();
-  }, [user]);
+  //atualizar Lista
+  async function getURL() {
+    const result = await axios.get(
+      `https://api.github.com/users/${user}/repos`,
+    );
+    console.log(result);
+    setRepos(result.data);
+  }
 
   return (
     <SafeAreaView>
@@ -59,12 +54,12 @@ const App = () => {
       <Section title="Lista de Repositorios" type="titleBar" />
       <TextInput
         placeholder="Insira seu repositorio"
-        onChangeText={newName => setUser(newName)}
+        onChangeText={text => setUser(text)}
         Value={user}
       />
-      <SectionList
-        sections={repos}
-        keyExtractor={item => item.id}
+      <Button title="buscar" onPress={() => getURL()} />
+      <FlatList
+        data={repos}
         renderItem={({item}) => <Item title={item.name} />}
       />
     </SafeAreaView>
