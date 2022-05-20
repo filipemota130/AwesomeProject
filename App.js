@@ -17,27 +17,10 @@ import {
   TextInput,
   SectionList,
 } from 'react-native';
-import api from './src/services/api';
+import axios from 'axios';
+//import api from './src/services/api';
 
 //import {Colors} from 'react-native/Libraries/NewAppScreen';
-const DATA = [
-  {
-    title: 'Main dishes',
-    data: ['Pizza', 'Burger', 'Risotto'],
-  },
-  {
-    title: 'Sides',
-    data: ['French Fries', 'Onion Rings', 'Fried Shrimps'],
-  },
-  {
-    title: 'Drinks',
-    data: ['Water', 'Coke', 'Beer'],
-  },
-  {
-    title: 'Desserts',
-    data: ['Cheese Cake', 'Ice Cream'],
-  },
-];
 
 const Section = ({children, title, type}) => {
   return (
@@ -48,36 +31,42 @@ const Section = ({children, title, type}) => {
   );
 };
 
+const Item = ({ title }) => (
+  <View style={styles.item}>
+    <Text style={styles.title}>{title}</Text>
+  </View>
+);
+
 const App = () => {
-  const [user, setUser] = React.useState('');
+  const [user, setUser] = React.useState('/filipemota130');
   const [repos, setRepos] = React.useState([]);
 
   //atulizar Lista
   useEffect(() => {
-    const response = api.get(`/${user}/repos`);
-    const lista = response.data;
-    setRepos(lista);
+    function getURL() {
+      return `https://api.github.com/users${user}/repos`;
+    }
+    async function fetchData() {
+      const result = await axios(getURL());
+      setRepos(result.data);
+    }
+    fetchData();
   }, [user]);
 
   return (
     <SafeAreaView>
       <StatusBar />
       <Section title="Lista de Repositorios" type="titleBar" />
-      <ScrollView contentInsetAdjustmentBehavior="automatic">
-        <TextInput
-          placeholder="Insira seu repositorio"
-          onChangeText={newName => setUser(newName)}
-          defaultValue={user}
-        />
-        <SectionList
-          sections={repos}
-          keyExtractor={(item, index) => item + index}
-          renderItem={({item}) => <Section title={item.name} />}
-          renderSectionHeader={({section: {title}}) => (
-            <Text style={styles.header}>{title}</Text>
-          )}
-        />
-      </ScrollView>
+      <TextInput
+        placeholder="Insira seu repositorio"
+        onChangeText={newName => setUser(newName)}
+        Value={user}
+      />
+      <SectionList
+        sections={repos}
+        keyExtractor={item => item.id}
+        renderItem={({item}) => <Item title={item.name} />}
+      />
     </SafeAreaView>
   );
 };
